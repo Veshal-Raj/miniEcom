@@ -1,4 +1,6 @@
 const amqp = require("amqplib");
+const UserModel = require("./modal/userModal");
+const ProductModel = require("./modal/productModal");
 
 async function consumeUserDetails() {
   const connection = await amqp.connect("amqp://localhost:5672");
@@ -7,9 +9,16 @@ async function consumeUserDetails() {
 
   channel.consume(
     "user-details",
-    (msg) => {
-      const userData = JSON.parse(msg.content.toString());
-      console.log("Received User Details:", userData);
+    async (msg) => {
+      try {
+        const userData = JSON.parse(msg.content.toString());
+        console.log("Received User Details:", userData);
+        const newUser = await new UserModel(userData);
+        await newUser.save();
+        console.log("Stored User Details: ", newUser);
+      } catch (error) {
+        console.error("Error processing user details: ", error);
+      }
     },
     { noAck: true }
   );
@@ -22,14 +31,21 @@ async function consumeProductDetails() {
 
   channel.consume(
     "product-details",
-    (msg) => {
-      const productData = JSON.parse(msg.content.toString());
-      console.log("Recieved Product Details:", productData);
+    async (msg) => {
+      try {
+        const productData = JSON.parse(msg.content.toString());
+        console.log("Recieved Product Details:", productData);
+        const newProduct = await new ProductModel(productData);
+        await newProduct.save();
+        console.log("Stored Product details: ", newProduct);
+      } catch (error) {
+        console.error("Error processing user details: ", error);
+      }
     },
     { noAck: true }
   );
 }
 
 // Call these functions when needed
-consumeUserDetails()
-consumeProductDetails()
+consumeUserDetails();
+consumeProductDetails();

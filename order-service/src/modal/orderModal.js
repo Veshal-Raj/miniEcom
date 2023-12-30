@@ -1,13 +1,11 @@
-const { Schema, model, Types } = require("mongoose");
+const mongoose = require("mongoose");
+const { Schema, Types, model } = mongoose;
 
-const OrderSchema = new Schema({
-  products: {
-    type: Types.ObjectId,
-    ref: "Product",
-  },
-  userEmail: String,
+const orderSchema = new Schema({
+  products: String,
+  email: String,
 });
 
-const OrderModel = model("Order", OrderSchema);
+const OrderModel = model("Order", orderSchema);
 
-module.exports = OrderModel;
+module.exports = { OrderModel };
